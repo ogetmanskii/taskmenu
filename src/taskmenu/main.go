@@ -182,7 +182,7 @@ func pressEnter(reader *bufio.Reader) {
 }
 
 func loadTasks() ([]Task, error) {
-	cmd := exec.Command("task", "--list-all", "--json")
+	cmd := exec.Command("task", "--list-all", "--json", "--sort", "none")
 	out, err := cmd.Output()
 	if err != nil {
 		return nil, err
