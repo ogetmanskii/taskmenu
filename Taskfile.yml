@@ -2,4 +2,8 @@ version: '3'
 tasks:
   build:
     cmds:
-      - go build -o bin/taskmenu{{exeExt}} ./src/taskmenu
+      - go build -o ./bin/taskmenu{{exeExt}} ./src/taskmenu
+  build-in-wsl:
+    platforms: [windows]
+    cmds:
+      - wsl go build -o ./bin/taskmenu ./src/taskmenu
