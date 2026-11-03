@@ -3,7 +3,26 @@ tasks:
   build:
     cmds:
       - go build -o ./bin/taskmenu{{exeExt}} ./src/taskmenu
-  build-in-wsl:
+
+  wsl:build:
     platforms: [windows]
     cmds:
       - wsl go build -o ./bin/taskmenu ./src/taskmenu
+
+  wsl:zip:
+    platforms: [windows]
+    deps: [wsl:build]
+    cmds:
+      - wsl rm -f ./bin/taskmenu-linux-amd64.zip
+      - wsl zip -j ./bin/taskmenu-linux-amd64.zip ./bin/taskmenu
+
+  win:zip:
+    platforms: [windows]
+    deps: [build]
+    cmds:
+      - cmd: powershell -NoProfile -Command "Remove-Item -Path './bin/taskmenu-{{OS}}-{{ARCH}}.zip' -ErrorAction SilentlyContinue"
+        ignore_error: true
+      - powershell -NoProfile -Command "Compress-Archive -Path './bin/taskmenu.exe' -DestinationPath './bin/taskmenu-{{OS}}-{{ARCH}}.zip' -Force"
+
+  package:
+    deps: [win:zip,wsl:zip]

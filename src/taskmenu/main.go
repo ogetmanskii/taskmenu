@@ -12,12 +12,9 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
-	"time"
 )
 
-var (
-	version = "1.0.0"
-)
+const version = "1.0.1"
 
 const (
 	colorReset = "\x1b[0m"
@@ -96,7 +93,7 @@ func main() {
 			)
 		}
 
-		fmt.Print("> ")
+		fmt.Print(colorGreen + "$ " + colorReset)
 
 		line, err := reader.ReadString('\n')
 		if err != nil {
@@ -129,22 +126,15 @@ func main() {
 			continue
 		}
 
-		start := time.Now()
 		exitCode, runErr := runTask(selected)
-		elapsed := time.Since(start)
 
-		if exitCode == 0 && runErr == nil {
-			fmt.Printf("\n%sDone in %s%s\n",
-				colorGreen, formatDuration(elapsed), colorReset)
-		} else {
-			fmt.Printf("\n%sFailed in %s (exit code %d)%s\n",
-				colorRed, formatDuration(elapsed), exitCode, colorReset)
+		if exitCode != 0 || runErr != nil {
+			fmt.Printf("\n%sFailed (exit code %d)%s\n",
+				colorRed, exitCode, colorReset)
 		}
 		pressEnter(reader)
 	}
 }
-
-// --- help / version ---
 
 func printUsage() {
 	fmt.Printf(`%staskmenu%s — interactive menu for Taskfile.yml
@@ -157,7 +147,7 @@ func printUsage() {
 %sDESCRIPTION%s
   Reads the task list from `+"`task --list-all --json`"+` and shows a numbered
   menu. Type a space-separated sequence of numbers to run tasks in order:
-      > 4 2 1
+      $ 4 2 1
   executes `+"`task task-4 task-2 task-1`"+`. Press Ctrl+C to quit.
 
 %sVERSION%s
@@ -219,13 +209,4 @@ func runTask(args []string) (int, error) {
 
 func clearScreen() {
 	fmt.Print("\x1b[2J\x1b[H")
-}
-
-// formatDuration форматирует длительность в стиле Go: "1h 30m 56.555s",
-// опуская пустые старшие разряды.
-func formatDuration(d time.Duration) string {
-	if d < time.Second {
-		return fmt.Sprintf("%dms", d.Milliseconds())
-	}
-	return d.Truncate(time.Millisecond).String()
 }

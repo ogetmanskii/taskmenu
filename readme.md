@@ -7,12 +7,10 @@
 2 test Run tests
 3 lint Run linters
 4 deploy Deploy to production
-> 3 2
+$ 3 2
 
 task: [lint] golangci-lint run
 task: [test] go test ./...
-
-Done in 2.341s
 Press Enter to continue...
 ```
 
@@ -53,7 +51,7 @@ $ taskmenu
 2 test Run tests
 3 lint Run linters
 4 deploy Deploy to production
-> 3 2
+$ 3 2
 ```
 
 Запустит `task lint test`.
