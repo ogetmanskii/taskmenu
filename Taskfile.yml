@@ -1,11 +1,17 @@
 version: '3'
 tasks:
+  get-deps:
+    cmds:
+      - go get github.com/mattn/go-colorable
+
   build:
+    deps: [get-deps]
     cmds:
       - go build -o ./bin/taskmenu{{exeExt}} ./src/taskmenu
 
   wsl:build:
     platforms: [windows]
+    deps: [get-deps]
     cmds:
       - wsl go build -o ./bin/taskmenu ./src/taskmenu
 

@@ -12,6 +12,8 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+
+	"github.com/mattn/go-colorable"
 )
 
 const version = "1.0.1"
@@ -34,7 +36,10 @@ type TaskList struct {
 	Tasks []Task `json:"tasks"`
 }
 
+var out = colorable.NewColorableStdout()
+
 func main() {
+
 	// --- Флаги ---
 	var (
 		showVersion bool
@@ -63,7 +68,7 @@ func main() {
 	go func() {
 		<-sigCh
 		clearScreen()
-		fmt.Println("Interrupted.")
+		fmt.Println(out, "Interrupted.")
 		os.Exit(130)
 	}()
 
@@ -77,7 +82,7 @@ func main() {
 	}
 
 	if len(tasks) == 0 {
-		fmt.Println("There are no tasks in this Taskfile")
+		fmt.Println(out, "There are no tasks in this Taskfile")
 		pressEnter(reader)
 		os.Exit(0)
 	}
@@ -86,14 +91,14 @@ func main() {
 		clearScreen()
 
 		for i, t := range tasks {
-			fmt.Printf("%s%d%s %s %s%s%s\n",
+			fmt.Fprintf(out, "%s%d%s %s %s%s%s\n",
 				colorCyan, i+1, colorReset,
 				t.Name,
 				colorGray, t.Desc, colorReset,
 			)
 		}
 
-		fmt.Print(colorGreen + "$ " + colorReset)
+		fmt.Fprint(out, colorGreen+"$ "+colorReset)
 
 		line, err := reader.ReadString('\n')
 		if err != nil {
@@ -114,7 +119,7 @@ func main() {
 		for _, p := range parts {
 			n, err := strconv.Atoi(p)
 			if err != nil || n < 1 || n > len(tasks) {
-				fmt.Printf("Unknown task: %q\n", p)
+				fmt.Fprintf(out, "Unknown task: %q\n", p)
 				pressEnter(reader)
 				valid = false
 				break
@@ -129,7 +134,7 @@ func main() {
 		exitCode, runErr := runTask(selected)
 
 		if exitCode != 0 || runErr != nil {
-			fmt.Printf("\n%sFailed (exit code %d)%s\n",
+			fmt.Fprintf(out, "\n%sFailed (exit code %d)%s\n",
 				colorRed, exitCode, colorReset)
 		}
 		pressEnter(reader)
@@ -137,7 +142,7 @@ func main() {
 }
 
 func printUsage() {
-	fmt.Printf(`%staskmenu%s — interactive menu for Taskfile.yml
+	fmt.Fprintf(out, `%staskmenu%s — interactive menu for Taskfile.yml
 
 %sUSAGE%s
   taskmenu              run interactive menu
@@ -162,12 +167,12 @@ func printUsage() {
 }
 
 func printVersion() {
-	fmt.Printf("taskmenu %s (%s/%s)\n",
+	fmt.Fprintf(out, "taskmenu %s (%s/%s)\n",
 		version, runtime.GOOS, runtime.GOARCH)
 }
 
 func pressEnter(reader *bufio.Reader) {
-	fmt.Printf("%sPress Enter to continue...%s", colorGray, colorReset)
+	fmt.Fprintf(out, "%sPress Enter to continue...%s", colorGray, colorReset)
 	_, _ = reader.ReadString('\n')
 }
 
@@ -203,10 +208,10 @@ func runTask(args []string) (int, error) {
 		return exitErr.ExitCode(), nil
 	}
 
-	fmt.Printf("\n[could not start task: %v]\n", err)
+	fmt.Fprintf(out, "\n[could not start task: %v]\n", err)
 	return -1, err
 }
 
 func clearScreen() {
-	fmt.Print("\x1b[2J\x1b[H")
+	fmt.Fprintf(out, "\x1b[2J\x1b[H")
 }
