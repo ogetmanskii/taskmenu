@@ -13,19 +13,10 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/mattn/go-colorable"
+	"taskmenu/color"
 )
 
 const version = "1.0.2"
-
-const (
-	colorReset = "\x1b[0m"
-	colorCyan  = "\x1b[36m"
-	colorGray  = "\x1b[90m"
-	colorGreen = "\x1b[32m"
-	colorRed   = "\x1b[31m"
-	colorBold  = "\x1b[1m"
-)
 
 type Task struct {
 	Name string `json:"name"`
@@ -36,34 +27,7 @@ type TaskList struct {
 	Tasks []Task `json:"tasks"`
 }
 
-var out = colorable.NewColorableStdout()
-
-func red(str string) string {
-	return colorRed + str + colorReset
-}
-
-func cyan(str string) string {
-	return colorCyan + str + colorReset
-}
-
-func gray(str string) string {
-	return colorGray + str + colorReset
-}
-
-func green(str string) string {
-	return colorGreen + str + colorReset
-}
-
-func println(str string) {
-	fmt.Fprintln(out, str)
-}
-
-func printf(str string, a ...any) {
-	fmt.Fprintf(out, str, a...)
-}
-
 func main() {
-
 	// --- Флаги ---
 	var (
 		showVersion bool
@@ -92,7 +56,7 @@ func main() {
 	go func() {
 		<-sigCh
 		clearScreen()
-		fmt.Println(out, "Interrupted.")
+		println("Interrupted.")
 		os.Exit(130)
 	}()
 
@@ -115,10 +79,10 @@ func main() {
 		clearScreen()
 
 		for i, t := range tasks {
-			printf("%s %s %s\n", cyan(strconv.Itoa(i+1)), t.Name, gray(t.Desc))
+			color.Printf("%s %s %s\n", color.Cyan(strconv.Itoa(i+1)), t.Name, color.Gray(t.Desc))
 		}
 
-		printf("%s", green("$ "))
+		color.Printf("%s", color.Green("$ "))
 
 		line, err := reader.ReadString('\n')
 		if err != nil {
@@ -138,7 +102,7 @@ func main() {
 		for _, p := range parts {
 			n, err := strconv.Atoi(p)
 			if err != nil || n < 1 || n > len(tasks) {
-				printf("Unknown task: %q\n", p)
+				color.Printf("Unknown task: %q\n", p)
 				pressEnter(reader)
 				valid = false
 				break
@@ -153,14 +117,14 @@ func main() {
 		exitCode, runErr := runTask(selected)
 
 		if exitCode != 0 || runErr != nil {
-			printf("%s", red("Failed (exit code "+strconv.Itoa(exitCode)+")"))
+			color.Printf("%s", color.Red("Failed (exit code "+strconv.Itoa(exitCode)+")"))
 		}
 		pressEnter(reader)
 	}
 }
 
 func printUsage() {
-	printf(`%staskmenu%s — interactive menu for Taskfile.yml
+	color.Printf(`%staskmenu%s — interactive menu for Taskfile.yml
 
 %sUSAGE%s
   taskmenu              run interactive menu
@@ -176,21 +140,21 @@ func printUsage() {
 %sVERSION%s
   %s (%s/%s)
 `,
-		colorBold, colorReset,
-		colorBold, colorReset,
-		colorBold, colorReset,
-		colorBold, colorReset,
+		color.ColorBold, color.ColorReset,
+		color.ColorBold, color.ColorReset,
+		color.ColorBold, color.ColorReset,
+		color.ColorBold, color.ColorReset,
 		version, runtime.GOOS, runtime.GOARCH,
 	)
 }
 
 func printVersion() {
-	printf("taskmenu %s (%s/%s)\n",
+	color.Printf("taskmenu %s (%s/%s)\n",
 		version, runtime.GOOS, runtime.GOARCH)
 }
 
 func pressEnter(reader *bufio.Reader) {
-	printf("%sPress Enter to continue...%s", colorGray, colorReset)
+	color.Printf("%sPress Enter to continue...%s", color.ColorGray, color.ColorReset)
 	_, _ = reader.ReadString('\n')
 }
 
@@ -226,10 +190,10 @@ func runTask(args []string) (int, error) {
 		return exitErr.ExitCode(), nil
 	}
 
-	fmt.Fprintf(out, "\n[could not start task: %v]\n", err)
+	color.Printf("\n[could not start task: %v]\n", err)
 	return -1, err
 }
 
 func clearScreen() {
-	printf("\x1b[2J\x1b[H")
+	color.Printf("\x1b[2J\x1b[H")
 }
