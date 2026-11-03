@@ -38,6 +38,30 @@ type TaskList struct {
 
 var out = colorable.NewColorableStdout()
 
+func red(str string) string {
+	return colorRed + str + colorReset
+}
+
+func cyan(str string) string {
+	return colorCyan + str + colorReset
+}
+
+func gray(str string) string {
+	return colorGray + str + colorReset
+}
+
+func green(str string) string {
+	return colorGreen + str + colorReset
+}
+
+func println(str string) {
+	fmt.Fprintln(out, str)
+}
+
+func printf(str string, a ...any) {
+	fmt.Fprintf(out, str, a...)
+}
+
 func main() {
 
 	// --- Флаги ---
@@ -82,7 +106,7 @@ func main() {
 	}
 
 	if len(tasks) == 0 {
-		fmt.Println(out, "There are no tasks in this Taskfile")
+		println("There are no tasks in this Taskfile")
 		pressEnter(reader)
 		os.Exit(0)
 	}
@@ -91,18 +115,13 @@ func main() {
 		clearScreen()
 
 		for i, t := range tasks {
-			fmt.Fprintf(out, "%s%d%s %s %s%s%s\n",
-				colorCyan, i+1, colorReset,
-				t.Name,
-				colorGray, t.Desc, colorReset,
-			)
+			printf("%s %s %s\n", cyan(strconv.Itoa(i+1)), t.Name, gray(t.Desc))
 		}
 
-		fmt.Fprint(out, colorGreen+"$ "+colorReset)
+		printf("%s", green("$ "))
 
 		line, err := reader.ReadString('\n')
 		if err != nil {
-			fmt.Println()
 			return
 		}
 		line = strings.TrimSpace(line)
@@ -119,7 +138,7 @@ func main() {
 		for _, p := range parts {
 			n, err := strconv.Atoi(p)
 			if err != nil || n < 1 || n > len(tasks) {
-				fmt.Fprintf(out, "Unknown task: %q\n", p)
+				printf("Unknown task: %q\n", p)
 				pressEnter(reader)
 				valid = false
 				break
@@ -134,15 +153,14 @@ func main() {
 		exitCode, runErr := runTask(selected)
 
 		if exitCode != 0 || runErr != nil {
-			fmt.Fprintf(out, "\n%sFailed (exit code %d)%s\n",
-				colorRed, exitCode, colorReset)
+			printf("%s", red("Failed (exit code "+strconv.Itoa(exitCode)+")"))
 		}
 		pressEnter(reader)
 	}
 }
 
 func printUsage() {
-	fmt.Fprintf(out, `%staskmenu%s — interactive menu for Taskfile.yml
+	printf(`%staskmenu%s — interactive menu for Taskfile.yml
 
 %sUSAGE%s
   taskmenu              run interactive menu
@@ -167,12 +185,12 @@ func printUsage() {
 }
 
 func printVersion() {
-	fmt.Fprintf(out, "taskmenu %s (%s/%s)\n",
+	printf("taskmenu %s (%s/%s)\n",
 		version, runtime.GOOS, runtime.GOARCH)
 }
 
 func pressEnter(reader *bufio.Reader) {
-	fmt.Fprintf(out, "%sPress Enter to continue...%s", colorGray, colorReset)
+	printf("%sPress Enter to continue...%s", colorGray, colorReset)
 	_, _ = reader.ReadString('\n')
 }
 
@@ -213,5 +231,5 @@ func runTask(args []string) (int, error) {
 }
 
 func clearScreen() {
-	fmt.Fprintf(out, "\x1b[2J\x1b[H")
+	printf("\x1b[2J\x1b[H")
 }
