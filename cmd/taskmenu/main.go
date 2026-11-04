@@ -78,10 +78,12 @@ func main() {
 	for {
 		clearScreen()
 
+		maxNumWidth := len(strconv.Itoa(len(tasks)))
 		for i, t := range tasks {
-			color.Printf("%s %s %s\n", color.Cyan(strconv.Itoa(i+1)), t.Name, color.Gray(t.Desc))
+			num := strconv.Itoa(i + 1)
+			paddedNum := fmt.Sprintf("%*s", maxNumWidth, num)
+			color.Printf("%s %s %s\n", color.Cyan(paddedNum), t.Name, color.Gray(t.Desc))
 		}
-
 		color.Printf("%s", color.Green("$ "))
 
 		line, err := reader.ReadString('\n')
