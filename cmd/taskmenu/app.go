@@ -64,6 +64,8 @@ func runInteractive(tasks []Task, dry bool) {
 			st.selectAtCursor()
 
 		case keyEnter:
+			clearScreen()
+
 			indices, ok := st.buildSelection()
 			if !ok {
 				st.notice = "nothing to run"

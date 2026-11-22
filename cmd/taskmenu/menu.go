@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"strconv"
-	"strings"
 )
 
 // menuState хранит состояние интерактивного меню.
@@ -50,12 +49,12 @@ func (st *menuState) render() {
 		idx := pos
 		t := st.tasks[idx]
 
-		cursor := ""
+		cursor := " "
 		if pos == st.cursor {
 			cursor = cyan("▶")
 		}
 
-		box := " "
+		box := ""
 		selected := false
 		if n, ok := numbers[idx]; ok {
 			box = cyan(fmt.Sprintf(" %*d", numWidth, n))
@@ -212,27 +211,4 @@ func (st *menuState) reset() {
 	st.selected = map[int]bool{}
 	st.selectedOrder = nil
 	st.notice = ""
-}
-
-func splitArgs(s string) (string, []string) {
-	if i := strings.Index(s, "--"); i >= 0 {
-		return strings.TrimSpace(s[:i]), strings.Fields(s[i+2:])
-	}
-	return s, nil
-}
-
-func parseNumbers(s string) ([]int, bool) {
-	fields := strings.Fields(s)
-	if len(fields) == 0 {
-		return nil, false
-	}
-	nums := make([]int, 0, len(fields))
-	for _, f := range fields {
-		n, err := strconv.Atoi(f)
-		if err != nil {
-			return nil, false
-		}
-		nums = append(nums, n)
-	}
-	return nums, true
 }
