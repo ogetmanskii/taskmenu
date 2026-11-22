@@ -14,6 +14,7 @@ const (
 	colorGray  = "\x1b[90m"
 	colorGreen = "\x1b[32m"
 	colorRed   = "\x1b[31m"
+	colorWhite = "\x1b[37m"
 	colorBold  = "\x1b[1m"
 )
 
@@ -46,11 +47,10 @@ func wrapColor(code, str string) string {
 	return code + str + colorReset
 }
 
-func red(str string) string   { return wrapColor(colorRed, str) }
-func cyan(str string) string  { return wrapColor(colorCyan, str) }
-func gray(str string) string  { return wrapColor(colorGray, str) }
-func green(str string) string { return wrapColor(colorGreen, str) }
-func bold(str string) string  { return wrapColor(colorBold, str) }
+func red(str string) string  { return wrapColor(colorRed, str) }
+func cyan(str string) string { return wrapColor(colorCyan, str) }
+func gray(str string) string { return wrapColor(colorGray, str) }
+func bold(str string) string { return wrapColor(colorBold, str) }
 
 func colorPrintf(str string, a ...any) {
 	fmt.Fprintf(colorOut, str, a...)

@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"time"
 
@@ -38,6 +39,16 @@ var (
 	rawFd    int
 	rawState *term.State
 )
+
+func makeRawTerminal() {
+	rawFd = int(os.Stdin.Fd())
+	var err error
+	rawState, err = term.MakeRaw(rawFd)
+	if err != nil {
+		fmt.Printf("could not go into raw mode: %v", err)
+		os.Exit(130)
+	}
+}
 
 func restoreTerminal() {
 	if rawState != nil {
@@ -152,7 +163,16 @@ func readKey(r *bufio.Reader) (key, rune) {
 	return keyNone, 0
 }
 
-func waitEnter(reader *bufio.Reader) {
-	colorPrintf("%s", gray("Press Enter to continue..."))
-	_, _ = reader.ReadString('\n')
+func waitEnterOrEsc(reader *bufio.Reader) {
+	defer restoreTerminal()
+	makeRawTerminal()
+	hideCursor()
+
+	colorPrintf("%s", gray("Press Enter or Esc to continue"))
+	for {
+		key, _ := readKey(reader)
+		if key == keyEnter || key == keyEsc {
+			return
+		}
+	}
 }

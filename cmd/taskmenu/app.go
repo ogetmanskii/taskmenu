@@ -12,13 +12,7 @@ import (
 // пробелом, запуск по Enter, перезагрузка по r/Ctrl+R.
 func runInteractive(tasks []Task, dry bool) {
 	fd := int(os.Stdin.Fd())
-	oldState, err := term.MakeRaw(fd)
-	if err != nil {
-		fmt.Printf("could not go into raw mode: %v", err)
-		os.Exit(130)
-	}
-	rawFd = fd
-	rawState = oldState
+	makeRawTerminal()
 	defer restoreTerminal()
 
 	// Один раз при входе: содержимое шелла уезжает в scrollback (это штатное
@@ -79,12 +73,10 @@ func runInteractive(tasks []Task, dry bool) {
 			}
 
 			code, runErr := runTask(names, extraArgs, dry)
-			if code == 0 && runErr == nil {
-				colorPrintf("%s\n", green("Done"))
-			} else {
+			if code != 0 || runErr != nil {
 				colorPrintf("%s\n", red(fmt.Sprintf("Failed (exit code %d)", code)))
 			}
-			waitEnter(reader)
+			waitEnterOrEsc(reader)
 
 			if ns, err := term.MakeRaw(fd); err == nil {
 				rawState = ns

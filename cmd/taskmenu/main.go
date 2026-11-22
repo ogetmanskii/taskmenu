@@ -55,13 +55,13 @@ func main() {
 	tasks, err := loadTasks()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Could not get tasks: error %v\n", err)
-		waitEnter(reader)
+		waitEnterOrEsc(reader)
 		os.Exit(1)
 	}
 
 	if len(tasks) == 0 {
 		fmt.Println("There are no tasks in this Taskfile")
-		waitEnter(reader)
+		waitEnterOrEsc(reader)
 		os.Exit(0)
 	}
 

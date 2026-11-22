@@ -50,15 +50,15 @@ func (st *menuState) render() {
 		idx := pos
 		t := st.tasks[idx]
 
-		cursor := "  "
+		cursor := ""
 		if pos == st.cursor {
-			cursor = green("▶ ")
+			cursor = cyan("▶")
 		}
 
-		box := strings.Repeat(" ", numWidth)
+		box := " "
 		selected := false
 		if n, ok := numbers[idx]; ok {
-			box = cyan(fmt.Sprintf("%*d", numWidth, n))
+			box = cyan(fmt.Sprintf(" %*d", numWidth, n))
 			selected = true
 		}
 
@@ -184,27 +184,6 @@ func (st *menuState) reset() {
 	st.selected = map[int]bool{}
 	st.selectedOrder = nil
 	st.notice = ""
-}
-
-// parseLineSelection разбирает строку построчного режима: номера через пробел,
-// после `--` — аргументы для задачи.
-func parseLineSelection(line string, tasks []Task) ([]string, []string, bool) {
-	q, args := splitArgs(line)
-	nums, isNum := parseNumbers(q)
-	if !isNum {
-		colorPrintf("Unknown task: %q\n", line)
-		return nil, nil, false
-	}
-
-	names := make([]string, 0, len(nums))
-	for _, n := range nums {
-		if n < 1 || n > len(tasks) {
-			colorPrintf("Unknown task: %q\n", line)
-			return nil, nil, false
-		}
-		names = append(names, tasks[n-1].Name)
-	}
-	return names, args, true
 }
 
 func splitArgs(s string) (string, []string) {
