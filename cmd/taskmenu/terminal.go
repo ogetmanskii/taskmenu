@@ -25,6 +25,8 @@ const (
 	keyNone key = iota
 	keyUp
 	keyDown
+	keyLeft
+	keyRight
 	keyEnter
 	keyEsc
 	keyCtrlC
@@ -149,8 +151,10 @@ func readKey(r *bufio.Reader) (key, rune) {
 					return keyUp, 0
 				case 'B':
 					return keyDown, 0
-				case 'C', 'D': // Стрелки влево / вправо не считаются за нажатие
-					return keyNone, 0
+				case 'C':
+					return keyRight, 0
+				case 'D':
+					return keyLeft, 0
 				}
 			}
 		}

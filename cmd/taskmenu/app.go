@@ -57,6 +57,12 @@ func runInteractive(tasks []Task, dry bool) {
 		case keyDown:
 			st.moveCursor(1, len(st.tasks))
 
+		case keyLeft:
+			st.unselectAtCursor()
+
+		case keyRight:
+			st.selectAtCursor()
+
 		case keyEnter:
 			indices, ok := st.buildSelection()
 			if !ok {
@@ -87,9 +93,7 @@ func runInteractive(tasks []Task, dry bool) {
 		case keyRune:
 			switch r {
 			case ' ':
-				if st.cursor >= 0 && st.cursor < len(st.tasks) {
-					st.toggleSelected(st.cursor)
-				}
+				st.toggleSelectedAtCursor()
 			case 'q', 'Q':
 				restoreTerminal()
 				return

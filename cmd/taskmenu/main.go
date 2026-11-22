@@ -12,7 +12,7 @@ import (
 	"golang.org/x/term"
 )
 
-const version = "1.2.2"
+const version = "1.2.3"
 
 func main() {
 	// --- Флаги ---

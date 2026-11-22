@@ -77,7 +77,7 @@ func (st *menuState) render() {
 	if st.notice != "" {
 		colorPrintf("%s%s%s", gray(st.notice), eraseLine(), menuEOL)
 	}
-	colorPrintf("%s%s%s", gray("↑/↓ move · space select · enter run · r reload · q quit"), eraseLine(), menuEOL)
+	colorPrintf("%s%s%s", gray("↑/↓ move · space/←/→ select · enter run · r reload · q quit"), eraseLine(), menuEOL)
 	frameEnd()
 }
 
@@ -114,17 +114,45 @@ func (st *menuState) selectionNumbers() map[int]int {
 // toggleSelected отмечает или снимает задачу, сохраняя порядок выбора.
 func (st *menuState) toggleSelected(idx int) {
 	if st.selected[idx] {
-		delete(st.selected, idx)
-		for i, v := range st.selectedOrder {
-			if v == idx {
-				st.selectedOrder = append(st.selectedOrder[:i], st.selectedOrder[i+1:]...)
-				break
-			}
-		}
+		st.unselectAtIndex(idx)
+	} else {
+		st.selectAtIndex(idx)
+	}
+}
+
+func (st *menuState) selectAtIndex(idx int) {
+	if st.selected[idx] {
 		return
 	}
 	st.selected[idx] = true
 	st.selectedOrder = append(st.selectedOrder, idx)
+}
+
+func (st *menuState) unselectAtIndex(idx int) {
+	if !st.selected[idx] {
+		return
+	}
+	delete(st.selected, idx)
+	for i, v := range st.selectedOrder {
+		if v == idx {
+			st.selectedOrder = append(st.selectedOrder[:i], st.selectedOrder[i+1:]...)
+			break
+		}
+	}
+}
+
+func (st *menuState) toggleSelectedAtCursor() {
+	if st.cursor >= 0 && st.cursor < len(st.tasks) {
+		st.toggleSelected(st.cursor)
+	}
+}
+
+func (st *menuState) selectAtCursor() {
+	st.selectAtIndex(st.cursor)
+}
+
+func (st *menuState) unselectAtCursor() {
+	st.unselectAtIndex(st.cursor)
 }
 
 func (st *menuState) moveCursor(d, total int) {
