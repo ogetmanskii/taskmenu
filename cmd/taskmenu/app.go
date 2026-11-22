@@ -25,6 +25,7 @@ func runInteractive(tasks []Task, dry bool) {
 	// поведение очистки экрана). Дальше все перерисовки кадра идут без
 	// ESC[2J, чтобы не плодить дубликаты меню в истории.
 	enterClear()
+	hideCursor()
 
 	reader := bufio.NewReader(os.Stdin)
 	st := &menuState{tasks: tasks, selected: map[int]bool{}}
@@ -87,6 +88,7 @@ func runInteractive(tasks []Task, dry bool) {
 
 			if ns, err := term.MakeRaw(fd); err == nil {
 				rawState = ns
+				hideCursor()
 			}
 			st.reset()
 

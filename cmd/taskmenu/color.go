@@ -31,6 +31,8 @@ const (
 	homeSeq       = "\x1b[1;1H"
 	eraseBelowSeq = "\x1b[0J"
 	eraseLineSeq  = "\x1b[K"
+	hideCursorSeq = "\x1b[?25l"
+	showCursorSeq = "\x1b[?25h"
 )
 
 var (
@@ -96,4 +98,22 @@ func eraseLine() string {
 		return eraseLineSeq
 	}
 	return ""
+}
+
+// hideCursor прячет курсор на время показа меню. После перерисовки кадра
+// физический курсор остаётся припаркованным за последним выведенным символом,
+// и терминал продолжает мигать им, хотя вводить в меню нечего — навигация
+// идёт стрелками и пробелом. Скрытый курсор мигать не может.
+func hideCursor() {
+	if isTerminalOut() {
+		fmt.Fprint(colorOut, hideCursorSeq)
+	}
+}
+
+// showCursor возвращает курсор терминалу. Обязателен на всех выходах из меню,
+// иначе шелл останется с невидимым курсором.
+func showCursor() {
+	if isTerminalOut() {
+		fmt.Fprint(colorOut, showCursorSeq)
+	}
 }

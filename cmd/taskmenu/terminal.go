@@ -44,6 +44,7 @@ func restoreTerminal() {
 		_ = term.Restore(rawFd, rawState)
 		rawState = nil
 	}
+	showCursor()
 }
 
 // startResizeWatcher запускает горутину, которая перерисовывает меню при
