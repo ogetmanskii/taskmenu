@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"sync"
 
 	"github.com/mattn/go-colorable"
 	"github.com/mattn/go-isatty"
@@ -36,9 +35,7 @@ const (
 )
 
 var (
-	colorOut   = colorable.NewColorableStdout()
-	colorsOn   bool
-	colorsOnce sync.Once
+	colorOut = colorable.NewColorableStdout()
 )
 
 func isTerminalOut() bool {
